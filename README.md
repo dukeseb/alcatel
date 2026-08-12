@@ -15,6 +15,15 @@
 *Verify Mode GPON (If it says XG-PON these instructions will not work)*
 <img src="https://i.imgur.com/DIXJxvk.png">
 
+**Determine if your Giga Hub is a PPTP or VEIP installation. Perform the following on a computer connected on your LAN while the Giga Hub is still connected.**
+
+1. Install Python3 <a href="https://www.geeksforgeeks.org/python/download-and-install-python-3-latest-version/">Instructions</a>
+2. Run the following in a command prompt / terminal window
+`python3 -m venv .venv source .venv/bin/activate pip3 install https://github.com/up-n-atom/sagemcom-modem-scripts/releases/download/v0.0.4/xmo_remote_client-0.0.4-py3-none-any.whl`
+4. Then run the following (use your Gigahubs Serial in place of the __________
+`xmo-remote-client --password=DM_________ get-onu-mode`
+5. Note whether the message says PPTP or VEIP
+
 **Download / Extract Firmware**
 > https://mega.nz/file/lckmXYrA#tvu0ZuUYufVdpO_Ewi1foxz9vhaLSnx-e4ebpN7p_LQ
 > - Duplicate the following file `alcatel-g010sp_new_busybox_theme-squashfs.image`
@@ -68,11 +77,25 @@ After imaging and doing a reboot go back and image the opposite
 
 **Switch to Custom mibs file**
 
+If PPTP
+`uci set gpon.onu.mib_file='/etc/mibs/data_1g_8q_us1280_ds512.ini'`
+
+If VEIP
 `uci set gpon.onu.mib_file='/etc/mibs/data_1v_8q.ini'`
+
 
 `uci commit`
 
 `reboot`
+
+**If you have TV/Phone through you Gigahub**
+If your internet service also includes TV and/or phone, run the following on the SFP while connected via SSH:
+`omci_pipe.sh md | grep -E '^\| +(130) \|`
+
+If there are two services listed as 130 | 4354 and 130 | 4355, run the following:
+`omci_pipe.sh med 130 4355`
+
+An errorcode of 0 confirms that the 130 | 4355 service has been terminated. NOTE: This previous command (to terminate 130 | 4355) will need to be re-run every time the SFP is rebooted.
 
 **Access Web Interface (192.168.1.10) [Firefox/Safari may cause problems]**
 
